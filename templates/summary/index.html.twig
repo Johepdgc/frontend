@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Summary</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .table-container {
+            flex: 1;
+            margin-right: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .chart-container {
+            flex: 1;
+        }
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Summary</h1>
+    <form method="get">
+        <label for="filter">Filter by date:</label>
+        <select name="filter" id="filter">
+            <option value="">All</option>
+            {% for date in available_dates %}
+                <option value="{{ date.summary_date }}">{{ date.summary_date }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+    <div class="container">
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Summary Date</th>
+                    <th>Category</th>
+                    <th>Subcategory</th>
+                    <th>Total</th>
+                </tr>
+                {% for row in data %}
+                <tr>
+                    <td>{{ row.id }}</td>
+                    <td>{{ row.summary_date }}</td>
+                    <td>{{ row.category }}</td>
+                    <td>{{ row.subcategory }}</td>
+                    <td>{{ row.total }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="chart-container">
+            <canvas id="myChart" width="400" height="400"></canvas>
+        </div>
+    </div>
+
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'pie', // Change to 'pie'
+            data: {
+                labels: {{ chart_labels|raw }}, // Use dynamic labels
+                datasets: [{
+                    label: 'Total',
+                    data: {{ chart_data|raw }}, // Use dynamic data
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
